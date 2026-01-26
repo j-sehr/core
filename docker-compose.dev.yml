@@ -1,0 +1,13 @@
+name: "core"
+volumes:
+  surrealdb_data:
+
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    hostname: surrealdb
+    ports:
+      - 8080:8080
+    volumes:
+      - surrealdb_data:/surrealdb/data
+    command: start --log debug --user root --pass root --bind 0.0.0.0:8080
