@@ -1,22 +1,11 @@
-#![allow(dead_code)]
-
-mod connection;
-mod extractors;
-mod handlers;
-mod models;
-mod password;
-mod token;
-use anyhow::Result;
-use axum::Router;
+use core::bootstrap;
+use tokio::net::TcpListener;
 
 #[tokio::main]
-async fn main() -> Result<()> {
-    let db = connection::init_db().await?;
-    let router = handlers::register_handlers(Router::new(), db);
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
+async fn main() -> anyhow::Result<()> {
+    let (router, _, file_config) = bootstrap().await?;
+    let listener = TcpListener::bind(format!("{}:{}", file_config.host, file_config.port)).await?;
+
     axum::serve(listener, router.into_make_service()).await?;
-
-    println!("Hello, world!");
-
     Ok(())
 }

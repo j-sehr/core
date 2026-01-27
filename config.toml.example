@@ -1,0 +1,22 @@
+[database]
+host = "localhost"
+port = 8080
+namespace = "local_db"
+database = "core"
+username = "root"
+password = "root"
+authenticationMethod = "Root"
+
+[logging]
+withColors = true
+withFile = true
+withLineNumber = true
+withThreadIds = true
+withThreadNames = true
+withTarget = true
+withLevel = true
+
+[authentication]
+jwtSecret = "sjeicednue3cdejnoucedidnc"
+jwtExpirationSeconds = 86400
+refreshTokenExpiration_days = 30
