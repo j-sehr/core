@@ -4,5 +4,8 @@ pub(crate) mod exports;
 pub(super) mod guards;
 pub(super) mod migrations;
 pub(super) mod models;
+pub(super) mod module;
 pub(super) mod router;
 pub(super) mod services;
+
+pub use exports::*;

@@ -1,4 +1,4 @@
-# Core Project Structure - Version 1.0
+# Core Project Structure - Version 1.1
 This document outlines the structure of the Core project, detailing the organization of directories and files to ensure consistency and maintainability across the codebase.
 
 ## 1. Root Directory
@@ -26,6 +26,7 @@ This document outlines the structure of the Core project, detailing the organiza
   - config/: Directory for module configuration e.g. ModuleConfig.
   - migrations/: Directory for database migrations.
   - router.rs: Module Web Router
+  - module.rs: The Module Definition
   - e.g. other directories as needed for the module's functionality.
 
 ## 3. Modules
@@ -43,4 +44,3 @@ Each Module should be composable, self-contained, and follow the structure outli
 - config/: Directory for application-wide configuration files.
 - modules/: Directory containing all project modules.
 - utils/: Directory for utility functions and helpers.
-- middleware/: Directory for middleware components.
