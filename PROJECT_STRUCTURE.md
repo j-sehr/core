@@ -1,4 +1,4 @@
-# Core Project Structure - Version 1.1
+# Core Project Structure - Version 1.2
 This document outlines the structure of the Core project, detailing the organization of directories and files to ensure consistency and maintainability across the codebase.
 
 ## 1. Root Directory
@@ -44,3 +44,4 @@ Each Module should be composable, self-contained, and follow the structure outli
 - config/: Directory for application-wide configuration files.
 - modules/: Directory containing all project modules.
 - utils/: Directory for utility functions and helpers.
+- common/: Directory for common types and functions used across modules.
