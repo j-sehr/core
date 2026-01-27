@@ -1,5 +1,5 @@
 # Core
-Mein Projekt für die Langeweile.
+My Project for my bored times 
 ## Modules
 - Authentication (MVP)
 
