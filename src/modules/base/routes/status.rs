@@ -14,7 +14,8 @@ async fn health_check() -> &'static str {
 #[debug_handler]
 async fn readiness_check(Extension(app_state): Extension<AppStateContext>) -> &'static str {
     let healthy = app_state.database.health().await;
-    if healthy.is_err() {
+    if let Err(err) = healthy {
+        tracing::error!("Database health check failed: {:?}", err);
         return "Not Ready";
     };
     "Ready"
