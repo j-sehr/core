@@ -17,6 +17,7 @@ async fn readiness_check(Extension(app_state): Extension<AppStateContext>) -> (S
     let healthy = app_state.database.health().await;
     if healthy.is_err() {
         return (StatusCode::SERVICE_UNAVAILABLE, Json(json!({"status": "not ready"})));
+
     };
     (StatusCode::OK, Json(json!({"status": "ready"})))
 }
