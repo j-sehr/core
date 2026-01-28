@@ -1,4 +1,4 @@
-# Core Project Structure - Version 1.2
+# Core Project Structure - Version 1.3
 This document outlines the structure of the Core project, detailing the organization of directories and files to ensure consistency and maintainability across the codebase.
 
 ## 1. Root Directory
@@ -25,7 +25,8 @@ This document outlines the structure of the Core project, detailing the organiza
   - dtos/: Directory for Data Transfer Objects e.g. CreateUserDto or AuthenticationResponseDTO.
   - config/: Directory for module configuration e.g. ModuleConfig.
   - migrations/: Directory for database migrations.
-  - router.rs: Module Web Router
+  - errors/: Directory for module-specific error handling.
+  - routes/: Directory for route definitions.
   - module.rs: The Module Definition
   - e.g. other directories as needed for the module's functionality.
 
@@ -36,7 +37,7 @@ Each Module should be composable, self-contained, and follow the structure outli
 - Database Connection
 - Logging
 - Configuration Management
-- Tracing (FUTURE)
+- Tracing
 
 ## 4. Src Directory (MIGRATION/RESTRUCTURE PENDING)
 - main.rs: The main entry point of the application.
