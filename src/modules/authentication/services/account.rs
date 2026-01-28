@@ -106,7 +106,7 @@ impl AccountService {
         password_service: &PasswordService,
         mut create_account: CreateAccountRequestDTO,
     ) -> Result<AccountModel, AuthenticationServiceError> {
-        let exists_username = dbg!(self.exists_username(&create_account.username).await?);
+        let exists_username = self.exists_username(&create_account.username).await?;
         if exists_username {
             return Err(AuthenticationServiceError::client(
                 AuthenticationClientError::AccountAlreadyExists,
