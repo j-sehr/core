@@ -1,7 +1,7 @@
 use crate::{
     common::{module::Module, server::ServerSettings},
     config::{enviroment::EnviromentConfiguration, file::FileConfiguration},
-    modules::base::exports::DatabaseConnection,
+    modules::{authentication::routes::routes, base::exports::DatabaseConnection},
 };
 use std::sync::Mutex;
 
@@ -18,7 +18,7 @@ impl Module for AuthenticationModule {
         _file_config: &FileConfiguration,
         _: &Mutex<ServerSettings>,
     ) -> anyhow::Result<Option<axum::Router<()>>> {
-        Ok(Some(super::router::router()))
+        Ok(Some(routes()))
     }
 
     async fn run_migrations(

@@ -1,11 +1,13 @@
 pub(super) mod config;
 pub(super) mod dtos;
+pub(super) mod errors;
 pub(crate) mod exports;
 pub(super) mod guards;
+pub(super) mod macros;
 pub(super) mod migrations;
 pub(super) mod models;
 pub(super) mod module;
-pub(super) mod router;
+pub(super) mod routes;
 pub(super) mod services;
 
 pub use exports::*;

@@ -3,9 +3,11 @@ use crate::{
     config::file::FileConfiguration,
     modules::authentication::{
         config::authentication::AuthenticationConfiguration,
+        errors::service::*,
         models::{account::AccountModel, session::SessionModel},
     },
 };
+use chrono::{DateTime, Utc};
 use hmac::{Hmac, Mac};
 use jwt::{SignWithKey, VerifyWithKey};
 use sha2::{Digest, Sha256};
@@ -51,6 +53,7 @@ impl TokenService {
     }
 
     pub fn from_file_config(file_config: FileConfiguration) -> anyhow::Result<Self> {
+        // NOT A SERVICE FUNCTION ONLY FOR INITIALIZATION
         let authentication_config = file_config
             .get_as::<AuthenticationConfiguration>()
             .ok_or_else(|| {
@@ -64,57 +67,82 @@ impl TokenService {
         Ok(Self::new(authentication_config))
     }
 
-    pub fn generate_jwt(&self, opts: TokenOpts) -> anyhow::Result<(String, i64)> {
-        let key = Hmac::<Sha256>::new_from_slice(self.authentication_config.jwt_secret.as_bytes())?;
+    pub fn generate_jwt(
+        &self,
+        opts: TokenOpts,
+    ) -> Result<(String, DateTime<Utc>), AuthenticationServiceError> {
+        let key = Hmac::<Sha256>::new_from_slice(self.authentication_config.jwt_secret.as_bytes())
+            .map_err(AuthenticationServiceError::from_error)?;
         let mut claims = opts.into_map();
-        let exp = chrono::Utc::now().timestamp()
-            + self.authentication_config.jwt_expiration_seconds as i64;
+        let exp = Utc::now()
+            .checked_add_signed(chrono::Duration::seconds(
+                self.authentication_config.jwt_expiration_seconds as i64,
+            ))
+            .ok_or_else(|| {
+                AuthenticationServiceError::ServerError(crate::log!(
+                    tracing::error,
+                    "{} Failed to calculate JWT expiration time",
+                    SERVICE_NAME
+                ))
+            })?;
 
-        claims.insert("exp", exp.to_string());
+        claims.insert("exp", exp.to_rfc3339());
         claims
             .sign_with_key(&key)
             .map(|jwt| (jwt, exp))
-            .map_err(Into::into)
+            .map_err(AuthenticationServiceError::from_error)
     }
 
-    pub fn verify_jwt(&self, token: &str) -> anyhow::Result<(RecordId, RecordId)> {
-        let key = Hmac::<Sha256>::new_from_slice(self.authentication_config.jwt_secret.as_bytes())?;
-        let claims: BTreeMap<String, String> = token.verify_with_key(&key)?;
+    pub fn verify_jwt(
+        &self,
+        token: &str,
+    ) -> Result<(RecordId, RecordId), AuthenticationServiceError> {
+        let key = Hmac::<Sha256>::new_from_slice(self.authentication_config.jwt_secret.as_bytes())
+            .map_err(AuthenticationServiceError::from_error)?;
 
-        let account_id = AccountModel::from_named_format(
-            claims
-                .get("account_id")
-                .ok_or_else(|| anyhow::anyhow!("account_id not found in token"))?,
-        )
-        .ok_or_else(|| crate::log!(tracing::warn, "{} Wrong account_id", SERVICE_NAME))?;
+        let claims: BTreeMap<String, String> = token
+            .verify_with_key(&key)
+            .map_err(AuthenticationServiceError::from_error)?;
 
-        let session_id = SessionModel::from_named_format(
-            claims
-                .get("session_id")
-                .ok_or_else(|| anyhow::anyhow!("session_id not found in token"))?,
-        )
-        .ok_or_else(|| crate::log!(tracing::warn, "{} Wrong Session Id", SERVICE_NAME))?;
+        let account_id = AccountModel::from_named_format(claims.get("account_id").ok_or(
+            AuthenticationServiceError::client(AuthenticationClientError::InvalidAccessToken),
+        )?)
+        .ok_or(AuthenticationServiceError::client(
+            AuthenticationClientError::InvalidAccountId,
+        ))?;
+
+        let session_id = SessionModel::from_named_format(claims.get("session_id").ok_or(
+            AuthenticationServiceError::client(AuthenticationClientError::InvalidAccessToken),
+        )?)
+        .ok_or(AuthenticationServiceError::client(
+            AuthenticationClientError::InvalidSessionId,
+        ))?;
 
         let exp = claims
             .get("exp")
             .ok_or_else(|| anyhow::anyhow!("exp not found in token"))?
-            .parse::<i64>()?;
+            .parse::<DateTime<Utc>>()
+            .map_err(|_| {
+                AuthenticationServiceError::client(AuthenticationClientError::InvalidAccessToken)
+            })?;
 
-        if chrono::Utc::now().timestamp() > exp {
-            return Err(anyhow::anyhow!("Token has expired"));
+        if chrono::Utc::now() > exp {
+            return Err(AuthenticationServiceError::client(
+                AuthenticationClientError::ExpiredAccessToken,
+            ));
         }
 
         Ok((account_id, session_id))
     }
 
-    pub fn generate_refresh_token(&self) -> anyhow::Result<String> {
+    pub fn generate_refresh_token(&self) -> String {
         use rand::Rng;
         let mut rng = rand::rng();
         let token: [u8; 64] = rng.random();
-        Ok(Sha256::digest(token)
+        Sha256::digest(token)
             .iter()
             .map(|b| format!("{:02x}", b))
-            .collect())
+            .collect()
     }
 
     pub fn hash_refresh_token(&self, refresh_token: &str) -> String {

@@ -51,6 +51,8 @@ pub async fn initialize_modules(
             .run_migrations(db_connection, env_config, file_config)
             .await?;
 
+        tracing::info!("Module '{}' initialized", module.name());
+
         if router_opt.is_none() {
             continue;
         }

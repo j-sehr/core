@@ -1,8 +1,7 @@
+use crate::common::configuration::ConfigurationKey;
 use serde::{Deserialize, Serialize};
 
-use crate::common::configuration::ConfigurationKey;
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthenticationConfiguration {
     pub jwt_secret: String,

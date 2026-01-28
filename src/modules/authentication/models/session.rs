@@ -7,6 +7,8 @@ pub struct SessionModel {
     pub id: BaseId,
     pub account_id: BaseId,
     pub refresh_hash: String,
+    pub ip_address: String,
+    pub user_agent: String,
     pub created_at: BaseDateTime,
     pub expires_at: BaseDateTime,
     pub is_active: bool,

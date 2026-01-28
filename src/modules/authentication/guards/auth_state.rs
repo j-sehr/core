@@ -136,20 +136,6 @@ impl FromRequestParts<()> for AuthenticatedGuard {
 
         let account_service = account_service_res.unwrap();
 
-        let session_service_res = auth_svc_guard.session_service();
-        if session_service_res.is_err() {
-            tracing::error!(
-                "Session service retrieval error: {:?}",
-                session_service_res.err()
-            );
-            return Err((
-                StatusCode::UNAUTHORIZED,
-                Json(serde_json::json!({"error": "Unauthorized"})),
-            ));
-        }
-
-        let session_service = session_service_res.unwrap();
-
         match auth_kind {
             Ok(AuthenticationKind::Authenticated {
                 account_id,
@@ -165,27 +151,11 @@ impl FromRequestParts<()> for AuthenticatedGuard {
                 }
 
                 let account = account_res.unwrap();
-                if account.is_none() {
-                    tracing::debug!("Account not found for user_id: {}", account_id);
-                    let delete_session_res = session_service.delete_session(&session_id).await;
-                    if delete_session_res.is_err() {
-                        tracing::debug!(
-                            "Failed to delete session for session_id {}: {:?}",
-                            session_id,
-                            delete_session_res.err()
-                        );
-                    }
-
-                    return Err((
-                        StatusCode::UNAUTHORIZED,
-                        Json(serde_json::json!({"error": "Unauthorized"})),
-                    ));
-                }
 
                 Ok(AuthenticatedGuard {
                     account_id,
                     session_id,
-                    account: account.unwrap(),
+                    account,
                 })
             }
             _ => Err((
