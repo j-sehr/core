@@ -56,7 +56,7 @@ impl Module for BaseModule {
             Ok::<(), anyhow::Error>(())
         }?;
 
-        Ok(None)
+        Ok(Some(super::routes::routes()))
     }
 
     async fn run_migrations(
