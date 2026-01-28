@@ -1,24 +1,25 @@
 use crate::common::app_state::AppStateContext;
-use axum::{Extension, debug_handler};
+use axum::{Extension, Json, debug_handler, http::StatusCode};
+use serde_json::{Value, json};
 
 #[debug_handler]
-async fn status() -> &'static str {
-    "OK"
+async fn status() -> (StatusCode, Json<Value>) {
+    (StatusCode::OK, Json(json!({"status": "ok"})))
 }
 
 #[debug_handler]
-async fn health_check() -> &'static str {
-    "Healthy"
+async fn health_check() -> (StatusCode, Json<Value>) {
+    (StatusCode::OK, Json(json!({"status": "healthy"})))
 }
 
 #[debug_handler]
-async fn readiness_check(Extension(app_state): Extension<AppStateContext>) -> &'static str {
+async fn readiness_check(Extension(app_state): Extension<AppStateContext>) -> (StatusCode, Json<Value>) {
     let healthy = app_state.database.health().await;
-    if let Err(err) = healthy {
-        tracing::error!("Database health check failed: {:?}", err);
-        return "Not Ready";
+    if healthy.is_err() {
+        return (StatusCode::SERVICE_UNAVAILABLE, Json(json!({"status": "not ready"})));
+
     };
-    "Ready"
+    (StatusCode::OK, Json(json!({"status": "ready"})))
 }
 
 pub fn routes() -> axum::Router {
