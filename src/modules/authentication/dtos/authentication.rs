@@ -15,6 +15,8 @@ pub struct SignUpResponseDto {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AuthenticationResponseDto {
+    pub session_id: String,
+    pub account_id: String,
     pub access_token: String,
     pub refresh_token: String,
     pub access_token_expires_at: DateTime<Utc>,

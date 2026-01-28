@@ -4,6 +4,7 @@ use crate::{
     modules::{
         authentication::{
             config::authentication::AuthenticationConfiguration,
+            errors::service::AuthenticationServiceError,
             services::{
                 account::AccountService, authentication::AuthenticationService,
                 password::PasswordService, session::SessionService, token::TokenService,
@@ -25,31 +26,39 @@ pub struct AuthenticationServiceGuard {
 }
 
 impl AuthenticationServiceGuard {
-    fn auth_config(&self) -> anyhow::Result<AuthenticationConfiguration> {
+    fn auth_config(&self) -> Result<AuthenticationConfiguration, AuthenticationServiceError> {
         self.file_config
             .get_as::<AuthenticationConfiguration>()
             .ok_or_else(|| {
-                crate::log!(
+                AuthenticationServiceError::ServerError(crate::log!(
                     tracing::error,
-                    "{} Failed to load authentication config",
-                    GUARD_NAME
-                )
+                    "Failed to load authentication configuration"
+                ))
             })
     }
 
-    pub fn token_service(&self) -> anyhow::Result<TokenService> {
+    pub fn token_service(&self) -> Result<TokenService, AuthenticationServiceError> {
         self.auth_config().map(TokenService::new)
     }
 
-    pub fn password_service(&self) -> anyhow::Result<PasswordService> {
+    pub fn password_service(&self) -> Result<PasswordService, AuthenticationServiceError> {
         Ok(PasswordService)
     }
 
-    pub fn account_service(&self) -> anyhow::Result<AccountService> {
+    pub fn account_service(&self) -> Result<AccountService, AuthenticationServiceError> {
         Ok(AccountService::new(self.database_connection.clone()))
     }
 
-    pub fn session_service(&self) -> anyhow::Result<SessionService> {
+    pub fn account_service_with_deps(
+        &self,
+    ) -> Result<(AccountService, PasswordService), AuthenticationServiceError> {
+        let account_service = AccountService::new(self.database_connection.clone());
+        let password_service = PasswordService;
+
+        Ok((account_service, password_service))
+    }
+
+    pub fn session_service(&self) -> Result<SessionService, AuthenticationServiceError> {
         let auth_config = self.auth_config()?;
 
         Ok(SessionService::new(
@@ -58,25 +67,45 @@ impl AuthenticationServiceGuard {
         ))
     }
 
-    pub fn authentication_service(&self) -> anyhow::Result<AuthenticationService> {
+    pub fn session_service_with_deps(
+        &self,
+    ) -> Result<(SessionService, TokenService), AuthenticationServiceError> {
+        let auth_config = self.auth_config()?;
+        let token_service = TokenService::new(auth_config.clone());
+
+        let session_service = SessionService::new(auth_config, self.database_connection.clone());
+
+        Ok((session_service, token_service))
+    }
+
+    pub fn authentication_service(
+        &self,
+    ) -> Result<AuthenticationService, AuthenticationServiceError> {
         Ok(AuthenticationService::new())
     }
 
-    pub fn get_all_services(
+    pub fn authentication_service_with_deps(
         &self,
-    ) -> anyhow::Result<(
-        TokenService,
-        PasswordService,
-        AccountService,
-        SessionService,
-        AuthenticationService,
-    )> {
+    ) -> Result<
+        (
+            AuthenticationService,
+            AccountService,
+            PasswordService,
+            SessionService,
+            TokenService,
+        ),
+        AuthenticationServiceError,
+    > {
+        let (account_service, password_service) = self.account_service_with_deps()?;
+        let (session_service, token_service) = self.session_service_with_deps()?;
+        let authentication_service = AuthenticationService::new();
+
         Ok((
-            self.token_service()?,
-            self.password_service()?,
-            self.account_service()?,
-            self.session_service()?,
-            self.authentication_service()?,
+            authentication_service,
+            account_service,
+            password_service,
+            session_service,
+            token_service,
         ))
     }
 }
