@@ -141,10 +141,9 @@ async fn revoke_session_for_account_by_id(
     auth_services: AuthenticationServiceGuard,
     Path((account_id, session_id)): Path<(String, String)>,
 ) -> (StatusCode, Json<Value>) {
-    dbg!(&session_id);
-    error_return!(let session_id = dbg!(SessionModel::from_named_format(&session_id)
+    error_return!(let session_id = SessionModel::from_named_format(&session_id)
         .ok_or(AuthenticationServiceError::client(AuthenticationClientError::InvalidSessionId))
-    ));
+    );
 
     error_return!(let account_id = AccountModel::from_named_format(&account_id)
         .ok_or(AuthenticationServiceError::client(AuthenticationClientError::InvalidAccountId))
