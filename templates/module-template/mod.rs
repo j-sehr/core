@@ -1,6 +1,6 @@
 pub(super) mod config;
 pub(super) mod dtos;
-pub(super) mod errors;
+pub(super) mod error;
 pub(crate) mod exports;
 pub(super) mod guards;
 pub(super) mod migrations;

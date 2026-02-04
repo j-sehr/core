@@ -18,7 +18,7 @@ impl Module for AuthenticationModule {
         _env_config: &EnviromentConfiguration,
         _file_config: &FileConfiguration,
         _: &Mutex<ServerSettings>,
-    ) -> anyhow::Result<Option<Router<()>>> {
+    ) -> anyhow::Result<Option<axum::Router<()>>> {
         Ok(Some(routes()))
     }
 

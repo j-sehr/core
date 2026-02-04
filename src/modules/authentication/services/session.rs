@@ -160,7 +160,7 @@ impl SessionService {
         session_id: &BaseId,
     ) -> Result<bool, AuthenticationServiceError> {
         let sessions: Vec<SessionModel> = self.database_connection
-            .query("Update type::table($table) SET is_active = true WHERE id = $id AND is_active = false RETURN AFTER")
+            .query("UPDATE type::table($table) SET is_active = true WHERE id = $id AND is_active = false RETURN AFTER")
             .bind(("table", SessionModel::table_name()))
             .bind(("id", session_id.clone()))
             .await.map_err(AuthenticationServiceError::from_error)?
@@ -175,7 +175,7 @@ impl SessionService {
         account_id: &BaseId,
     ) -> Result<bool, AuthenticationServiceError> {
         let sessions: Vec<SessionModel> = self.database_connection
-            .query("Update type::table($table) SET is_active = true WHERE id = $id AND account_id = $account_id RETURN AFTER")
+            .query("UPDATE type::table($table) SET is_active = true WHERE id = $id AND account_id = $account_id RETURN AFTER")
             .bind(("table", SessionModel::table_name()))
             .bind(("id", session_id.clone()))
             .bind(("account_id", account_id.clone()))
@@ -191,7 +191,7 @@ impl SessionService {
     ) -> Result<bool, AuthenticationServiceError> {
         let sessions: Vec<SessionModel> = self
             .database_connection
-            .query("Update type::table($table) SET is_active = false WHERE id = $id RETURN AFTER")
+            .query("UPDATE type::table($table) SET is_active = false WHERE id = $id RETURN AFTER")
             .bind(("table", SessionModel::table_name()))
             .bind(("id", session_id.clone()))
             .await
@@ -210,7 +210,7 @@ impl SessionService {
         account_id: &BaseId,
     ) -> Result<bool, AuthenticationServiceError> {
         let sessions: Vec<SessionModel> = self.database_connection
-            .query("Update type::table($table) SET is_active = false WHERE id = $id AND account_id = $account_id RETURN AFTER")
+            .query("UPDATE type::table($table) SET is_active = false WHERE id = $id AND account_id = $account_id RETURN AFTER")
             .bind(("table", SessionModel::table_name()))
             .bind(("id", session_id.clone()))
             .bind(("account_id", account_id.clone()))
@@ -225,7 +225,7 @@ impl SessionService {
         account_id: &BaseId,
     ) -> Result<bool, AuthenticationServiceError> {
         let sessions: Vec<SessionModel> = self.database_connection
-            .query("Update type::table($table) SET is_active = false WHERE account_id = $account_id RETURN AFTER")
+            .query("UPDATE type::table($table) SET is_active = false WHERE account_id = $account_id RETURN AFTER")
             .bind(("table", SessionModel::table_name()))
             .bind(("account_id", account_id.clone()))
             .await.map_err(AuthenticationServiceError::from_error)?

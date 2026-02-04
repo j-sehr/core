@@ -135,6 +135,7 @@ async fn revoke_all_sessions_by_account_id(
     )
 }
 
+#[axum::debug_handler()]
 async fn revoke_session_for_account_by_id(
     _: AuthenticatedGuard,
     auth_services: AuthenticationServiceGuard,
