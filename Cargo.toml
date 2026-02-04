@@ -20,4 +20,9 @@ surrealdb = "2.5.0"
 thiserror = "2.0.18"
 tokio = { version = "1.49.0", features = ["full"] }
 tracing = { version = "0.1.44", features = ["async-await", "log"] }
-tracing-subscriber = { version = "0.3.22", features = ["tracing", "valuable", "parking_lot", "env-filter"] }
+tracing-subscriber = { version = "0.3.22", features = [
+  "env-filter",
+  "parking_lot",
+  "tracing",
+  "valuable"
+] }
