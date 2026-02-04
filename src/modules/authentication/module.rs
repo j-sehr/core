@@ -3,6 +3,7 @@ use crate::{
     config::{enviroment::EnviromentConfiguration, file::FileConfiguration},
     modules::{authentication::routes::routes, base::exports::DatabaseConnection},
 };
+use axum::Router;
 use std::sync::Mutex;
 
 pub struct AuthenticationModule;
