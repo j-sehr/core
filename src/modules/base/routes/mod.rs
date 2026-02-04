@@ -1,7 +1,5 @@
-use axum::Router;
+pub mod status;
 
-mod status;
-
-pub fn routes() -> Router {
-    Router::new().nest("/status", status::routes())
+pub fn routes() -> axum::Router {
+    axum::Router::new().nest("/status", status::routes())
 }
