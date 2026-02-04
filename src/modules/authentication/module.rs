@@ -3,6 +3,7 @@ use crate::{
     config::{enviroment::EnviromentConfiguration, file::FileConfiguration},
     modules::{authentication::routes::routes, base::exports::DatabaseConnection},
 };
+use axum::Router;
 use std::sync::Mutex;
 
 pub struct AuthenticationModule;
@@ -17,7 +18,7 @@ impl Module for AuthenticationModule {
         _env_config: &EnviromentConfiguration,
         _file_config: &FileConfiguration,
         _: &Mutex<ServerSettings>,
-    ) -> anyhow::Result<Option<axum::Router<()>>> {
+    ) -> anyhow::Result<Option<Router<()>>> {
         Ok(Some(routes()))
     }
 
