@@ -120,7 +120,9 @@ impl TokenService {
 
         let exp = claims
             .get("exp")
-            .ok_or_else(|| anyhow::anyhow!("exp not found in token"))?
+            .ok_or(AuthenticationServiceError::client(
+                AuthenticationClientError::InvalidAccessToken,
+            ))?
             .parse::<DateTime<Utc>>()
             .map_err(|_| {
                 AuthenticationServiceError::client(AuthenticationClientError::InvalidAccessToken)
