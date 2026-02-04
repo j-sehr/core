@@ -50,7 +50,7 @@ impl Module for BaseModule {
         let db_connection = connect_to_database(&db_config).await?;
         {
             let mut settings = server_settings.lock().map_err(|e| {
-                anyhow!("Failed to get mutex lock for setting database: {}", dbg!(e)) // VERY IMPOTANT dbg! HERE, FOR KNOWING WHEN IT HAPPENS
+                anyhow!("Failed to get mutex lock for setting database: {}", e)
             })?;
 
             settings.database_connection = Some(db_connection);

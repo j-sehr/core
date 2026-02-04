@@ -26,7 +26,7 @@ async fn sign_up(
         token_service,
     ) = auth_services.authentication_service_with_deps());
 
-    error_return!(let auth_response = dbg!(authentication_service
+    error_return!(let auth_response = authentication_service
         .register(
             &account_service,
             &token_service,
@@ -35,7 +35,7 @@ async fn sign_up(
             request_info,
             dto,
         )
-        .await));
+        .await);
 
     (StatusCode::CREATED, Json(json!(auth_response)))
 }
