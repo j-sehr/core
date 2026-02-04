@@ -8,6 +8,7 @@ use crate::{
     modules::base::exports::DatabaseConnection,
 };
 use anyhow::anyhow;
+use axum::Router;
 use std::{str::FromStr, sync::Mutex};
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{EnvFilter, Layer, fmt, layer::SubscriberExt};
@@ -24,7 +25,7 @@ impl Module for BaseModule {
         env_config: &EnviromentConfiguration,
         file_config: &FileConfiguration,
         server_settings: &Mutex<ServerSettings>,
-    ) -> anyhow::Result<Option<axum::Router<()>>> {
+    ) -> anyhow::Result<Option<Router<()>>> {
         let log_level = get_log_level(env_config);
         let env_filter = EnvFilter::from_str(&log_level)?;
         let log_config = file_config

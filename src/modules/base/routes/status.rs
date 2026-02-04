@@ -1,5 +1,5 @@
 use crate::common::app_state::AppStateContext;
-use axum::{Extension, debug_handler};
+use axum::{Extension, Router, debug_handler, routing::get};
 
 #[debug_handler]
 async fn status() -> &'static str {
@@ -20,9 +20,9 @@ async fn readiness_check(Extension(app_state): Extension<AppStateContext>) -> &'
     "Ready"
 }
 
-pub fn routes() -> axum::Router {
-    axum::Router::new()
-        .route("/", axum::routing::get(status))
-        .route("/health", axum::routing::get(health_check))
-        .route("/readiness", axum::routing::get(readiness_check))
+pub fn routes() -> Router {
+    Router::new()
+        .route("/", get(status))
+        .route("/health", get(health_check))
+        .route("/readiness", get(readiness_check))
 }
